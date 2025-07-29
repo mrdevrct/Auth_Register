@@ -2,9 +2,12 @@ import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "../App";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ProtectedRoute from "./ProtectedRoute";
+import MainLayout from "@/wrappers/MainLayout";
 
 const Login = lazy(() => import("../pages/login/LoginPage"));
-const Home = lazy(() => import("../pages/home/Home"));
+const Home = lazy(() => import("../pages/home/HomePage"));
+const Products = lazy(() => import("../pages/products/ProductsPage"));
 
 
 function AppRouter() {
@@ -14,8 +17,13 @@ function AppRouter() {
         <Routes>
           {/* Main Wrapper: App */}
           <Route element={<App />}>
-            {/* مسیر اصلی (Home) */}
-            <Route path="/" element={<Home />} />
+            {/* مسیرهای محافظت‌شده */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+              </Route>
+            </Route>
 
             {/* مسیرهای مربوط به احراز هویت */}
             <Route path="auth">
