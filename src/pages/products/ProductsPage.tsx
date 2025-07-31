@@ -4,11 +4,13 @@ import PageHeader from "@/components/page-header/PageHeader";
 import { FiltersSidebarSkeleton } from "@/features/products/components/FiltersSidebar";
 import { SortControlsSkeleton } from "@/features/products/components/SortControls";
 import { ProductCardSkeleton } from "@/features/products/components/ProductCard";
+const defaultPageSize = Number(import.meta.env.VITE_DEFAULT_PAGE_SIZE) || 8;
 
 // Dynamic imports
 const ProductsContent = lazy(
   () => import("@/features/products/components/ProductsContent")
 );
+
 
 const ProductsPage: React.FC = () => {
   const {
@@ -31,7 +33,7 @@ const ProductsPage: React.FC = () => {
               <div className="w-full lg:w-4/5">
                 <SortControlsSkeleton />
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center min-h-[600px]">
-                  {Array.from({ length: 8 }).map((_, index) => (
+                  {Array.from({ length: defaultPageSize }).map((_, index) => (
                     <ProductCardSkeleton key={index} />
                   ))}
                 </div>

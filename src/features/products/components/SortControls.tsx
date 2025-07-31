@@ -15,8 +15,8 @@ const SortControls: React.FC<SortControlsProps> = ({
 }) => {
   return (
     <Animate animation="fadeIn" duration={0.5} className="mb-6">
-      <div className="bg-white rounded-lg shadow p-4 flex flex-col sm:flex-row justify-between items-center">
-        <div className="text-sm text-gray-600 mb-3 sm:mb-0">
+      <div className="bg-white rounded-lg shadow p-4 flex justify-between items-center">
+        <div className="text-sm text-gray-600">
           نمایش {(filters.page - 1) * (filters.per_page || 12) + 1}-
           {Math.min(
             filters.page * (filters.per_page || 12),

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Filters } from "../types";
+const defaultPageSize = Number(import.meta.env.VITE_DEFAULT_PAGE_SIZE) || 8;
 
 export const useFilters = () => {
   const [filters, setFilters] = useState<Filters>({
@@ -8,7 +9,7 @@ export const useFilters = () => {
     sort: "",
     minPrice: 0,
     maxPrice: 1000000,
-    per_page: 8,
+    per_page: defaultPageSize,
   });
   const [tempPriceRange, setTempPriceRange] = useState<{
     min: number;
