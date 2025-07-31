@@ -1,7 +1,7 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "../App";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/loading/LoadingSpinner";
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "@/wrappers/MainLayout";
 

@@ -3,7 +3,7 @@
 import { FaBars, FaSearch, FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {

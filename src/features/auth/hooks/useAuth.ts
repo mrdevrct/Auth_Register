@@ -1,28 +1,36 @@
 import { useMemo } from "react";
 import Cookies from "js-cookie";
-import { decryptData } from "../../../libs/crypto/cryptoUtils";
+import { useQuery } from "@tanstack/react-query";
+import { useApiClient } from "@/libs/axios/axiosConfig";
 import type { UserData } from "../types";
+import { authApi } from "../api/authApi";
 
 export const useAuth = () => {
-  const encryptedUserData = Cookies.get("user_data");
-  const authToken = Cookies.get("auth_token");
+  const api = useApiClient();
 
-  const userData: UserData | null = useMemo(() => {
-    if (encryptedUserData) {
+  const { data: userData, isLoading } = useQuery<UserData | null>({
+    queryKey: ["authUser"],
+    queryFn: async () => {
       try {
-        return decryptData(encryptedUserData) as UserData;
+        const response = await authApi.getCurrentUser(api);
+        console.log("Auth response =>" , response);
+        
+        if (response.data.success) {
+          return response.data.user;
+        }
+        return null; // در صورت عدم موفقیت
       } catch (error) {
-        console.error("Error decrypting user data:", error);
+        console.error("خطا در دریافت اطلاعات کاربر:", error);
         return null;
       }
-    }
-    return null;
-  }, [encryptedUserData]);
+    },
+    enabled: !!Cookies.get("auth_token"),
+  });
 
   const isLoggedIn = useMemo(
-    () => !!(authToken && userData),
-    [authToken, userData]
+    () => !!userData && !!Cookies.get("auth_token"),
+    [userData]
   );
 
-  return { userData, isLoggedIn };
+  return { userData, isLoggedIn, isLoading };
 };

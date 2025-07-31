@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { encryptData } from "../../../libs/crypto/cryptoUtils";
-import { requestOtp, verifyOtp } from "../api/loginApi";
+import { useMutation } from "@tanstack/react-query";
+import { useApiClient } from "@/libs/axios/axiosConfig";
+import type { OTPResponse } from "../types";
+import { loginApi } from "../api/loginApi";
 
 export const useLogin = () => {
   const [mobile, setMobile] = useState<string>("");
@@ -12,9 +14,8 @@ export const useLogin = () => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [countdown, setCountdown] = useState<number>(300);
   const [isResendEnabled, setIsResendEnabled] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const navigate = useNavigate();
+  const api = useApiClient();
 
   const LAST_OTP_TIME_KEY = `otp_last_sent_${mobile}`;
   const COUNTDOWN_KEY = `otp_countdown_${mobile}`;
@@ -38,7 +39,7 @@ export const useLogin = () => {
         localStorage.removeItem(COUNTDOWN_KEY);
       }
     }
-  }, [LAST_OTP_TIME_KEY]);
+  }, [LAST_OTP_TIME_KEY, mobile]);
 
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -68,30 +69,67 @@ export const useLogin = () => {
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  // Handle OTP request
-  const handleRequestOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccessMessage("");
-    setIsLoading(true);
-
-    try {
-      const response = await requestOtp(mobile);
-      if (response.success) {
-        setSuccessMessage(response.message || "کد تأیید ارسال شد.");
+  // Mutation for requesting OTP
+  const requestOtpMutation = useMutation<OTPResponse, Error, string>({
+    mutationFn: async (mobile: string) => {
+      const response = await loginApi.sendOtpRequest(api, mobile);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setSuccessMessage(data.message || "کد تأیید ارسال شد.");
         setIsOtpSent(true);
         setCountdown(300);
         setIsResendEnabled(false);
         localStorage.setItem(LAST_OTP_TIME_KEY, Date.now().toString());
         localStorage.setItem(COUNTDOWN_KEY, "300");
       } else {
-        setError("خطایی در ارسال کد تأیید رخ داد.");
+        setError(data.message || "خطایی در ارسال کد تأیید رخ داد.");
       }
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setIsLoading(false);
-    }
+    },
+    onError: (error) => {
+      setError(error.message || "خطایی در ارتباط با سرور رخ داد.");
+    },
+  });
+
+  // Mutation for verifying OTP
+  const verifyOtpMutation = useMutation<
+    OTPResponse,
+    Error,
+    { mobile: string; otp: string }
+  >({
+    mutationFn: async ({ mobile, otp }) => {
+      const response = await loginApi.verifyOtpRequest(api, mobile, otp);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setSuccessMessage("تأیید با موفقیت انجام شد!");
+        if (data.token) {
+          Cookies.set("auth_token", data.token, {
+            expires: 1,
+            secure: true,
+            sameSite: "strict",
+          });
+        }
+        localStorage.removeItem(LAST_OTP_TIME_KEY);
+        localStorage.removeItem(COUNTDOWN_KEY);
+        navigate("/");
+      } else {
+        setError(data.message || "کد تأیید نامعتبر است.");
+      }
+    },
+    onError: (error) => {
+      setError(error.message || "خطایی در تأیید کد رخ داد.");
+    },
+  });
+
+  // Handle OTP request
+  const handleRequestOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccessMessage("");
+    requestOtpMutation.mutate(mobile);
   };
 
   // Handle OTP verification
@@ -99,43 +137,7 @@ export const useLogin = () => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
-    setIsLoading(true);
-
-    try {
-      const response = await verifyOtp(mobile, otp);
-      if (response.success) {
-        setSuccessMessage("تأیید با موفقیت انجام شد!");
-        if (response.token) {
-          Cookies.set("auth_token", response.token, {
-            expires: 1,
-            secure: true,
-            sameSite: "strict",
-          });
-        }
-        if (response.user) {
-          const encryptedUserData = encryptData(response.user.wp_data);
-          if (encryptedUserData) {
-            Cookies.set("user_data", encryptedUserData, {
-              expires: 1,
-              secure: true,
-              sameSite: "strict",
-            });
-          } else {
-            setError("خطا در رمزنگاری داده‌های کاربر.");
-            return;
-          }
-        }
-        localStorage.removeItem(LAST_OTP_TIME_KEY);
-        localStorage.removeItem(COUNTDOWN_KEY);
-        navigate("/");
-      } else {
-        setError("کد تأیید نامعتبر است.");
-      }
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setIsLoading(false);
-    }
+    verifyOtpMutation.mutate({ mobile, otp });
   };
 
   return {
@@ -148,7 +150,7 @@ export const useLogin = () => {
     successMessage,
     countdown,
     isResendEnabled,
-    isLoading,
+    isLoading: requestOtpMutation.isPending || verifyOtpMutation.isPending,
     handleRequestOtp,
     handleVerifyOtp,
     formatTime,
