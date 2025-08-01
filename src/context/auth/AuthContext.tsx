@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import type { UserData } from "@/features/auth/types";
 import { createContext, type ReactNode } from "react";
