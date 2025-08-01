@@ -16,17 +16,36 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isPriority }) => {
   return (
     <div className="w-full lg:h-[400px] p-[15px] shadow-md bg-white rounded-lg flex flex-col gap-1">
       <a
-        href={`/products/${product.id}`}
+        href={`/product/${product.id}`}
         className="relative w-full h-[200px] mb-2 mx-auto block"
       >
-        <img
-          src={product.image}
-          alt={product.name}
-          loading={isPriority ? "eager" : "lazy"}
-          className="object-cover rounded-md w-full h-full"
-        />
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            loading={isPriority ? "eager" : "lazy"}
+            className="object-cover rounded-md w-full h-full"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 3h18v18H3V3zm6 6h6m-3-3v6"
+              />
+            </svg>
+          </div>
+        )}
       </a>
-      <a href={`/products/${product.id}`}>
+      <a href={`/product/${product.id}`}>
         <h3 className="text-sm font-semibold text-center line-clamp-1 hover:text-blue-600 transition-colors">
           {product.name}
         </h3>

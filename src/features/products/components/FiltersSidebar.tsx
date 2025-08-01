@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import type { Filters } from "../types";
@@ -28,6 +28,16 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsOpen(window.matchMedia("(min-width: 1024px)").matches);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const toggleFilters = () => {
     setIsOpen((prev) => !prev);
   };
@@ -39,7 +49,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
           <h2 className="text-xl font-bold">فیلتر کردن</h2>
           <Button
             variant="ghost"
-            className="p-2 h-6 w-6 lg:h-8 lg:w-8"
+            className="p-2 h-6 w-6 lg:h-8 lg:w-8 lg:hidden" // مخفی کردن دکمه در lg و بالاتر
             onClick={toggleFilters}
             aria-label={isOpen ? "بستن فیلترها" : "باز کردن فیلترها"}
           >
@@ -51,7 +61,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
           </Button>
         </div>
 
-        {isOpen && (
+        {(isOpen || window.matchMedia("(min-width: 1024px)").matches) && (
           <Animate animation="fadeIn" duration={0.3}>
             <div>
               <div className="mb-6">
@@ -127,7 +137,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                   >
                     <option value="">همه دسته‌ها</option>
                     {categories.map((category) => (
-                      <option key={category.id} value={category.slug}>
+                      <option key={category.id} value={category.name}>
                         {category.name}
                       </option>
                     ))}
@@ -159,7 +169,7 @@ const FiltersSidebarSkeleton: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <div className="h-6 w-1/3 bg-gray-200 rounded"></div>
         <div
-          className="h-6 w-6 lg:h-8 lg:w-8 bg-gray-200 rounded-full cursor-pointer"
+          className="h-6 w-6 lg:h-8 lg:w-8 bg-gray-200 rounded-full cursor-pointer lg:hidden"
           onClick={toggleFilters}
         ></div>
       </div>

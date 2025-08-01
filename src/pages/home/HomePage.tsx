@@ -7,7 +7,7 @@ const HomePage: React.FC = () => {
   console.log("user =>", userData);
 
   return (
-    <div className="flex-grow flex items-center justify-center bg-gray-100">
+    <div className="flex-grow flex items-center justify-center bg-gray-100 p-4">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-800">
           خوش آمدید به صفحه اصلی!

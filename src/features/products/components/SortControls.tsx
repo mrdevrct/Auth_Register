@@ -24,7 +24,8 @@ const SortControls: React.FC<SortControlsProps> = ({
           )}{" "}
           از {totalProducts || 0} محصول
         </div>
-        <div>
+        {/* Sort */}
+        {/* <div>
           <select
             value={filters.sort || ""}
             onChange={(e) => onSortChange(e.target.value)}
@@ -35,7 +36,7 @@ const SortControls: React.FC<SortControlsProps> = ({
             <option value="most_expensive">گران‌ترین</option>
             <option value="popular">محبوب‌ترین</option>
           </select>
-        </div>
+        </div> */}
       </div>
     </Animate>
   );

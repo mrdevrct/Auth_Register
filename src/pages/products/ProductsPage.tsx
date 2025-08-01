@@ -23,7 +23,7 @@ const ProductsPage: React.FC = () => {
   } = useFilters();
 
   return (
-    <div className="flex-grow flex flex-col bg-gray-100">
+    <div className="flex-grow flex flex-col bg-gray-100 p-4">
       <Suspense
         fallback={
           <div className="container mx-auto py-8">
