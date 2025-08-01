@@ -18,7 +18,7 @@ export const useAuth = () => {
         if (response.data.success) {
           return response.data.user;
         }
-        return null; // در صورت عدم موفقیت
+        return null;
       } catch (error) {
         console.error("خطا در دریافت اطلاعات کاربر:", error);
         return null;
