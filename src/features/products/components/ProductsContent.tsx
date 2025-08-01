@@ -61,7 +61,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({
           <SortControls
             filters={filters}
             totalProducts={products?.pagination?.total_products || 0}
-            onSortChange={(sort) => handleFilterChange({ sort })}
+            // onSortChange={(sort) => handleFilterChange({ sort })}
           />
           {productError ? (
             <div className="bg-white rounded-lg shadow p-8 text-center text-red-500">

@@ -5,13 +5,13 @@ import Animate from "@/components/animate/Animate";
 interface SortControlsProps {
   filters: Filters;
   totalProducts: number;
-  onSortChange: (sort: string) => void;
+  // onSortChange: (sort: string) => void;
 }
 
 const SortControls: React.FC<SortControlsProps> = ({
   filters,
   totalProducts,
-  onSortChange,
+  // onSortChange,
 }) => {
   return (
     <Animate animation="fadeIn" duration={0.5} className="mb-6">
