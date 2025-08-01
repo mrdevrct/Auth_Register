@@ -1,5 +1,5 @@
+// src/pages/cart/CartPage.tsx
 import React, { Suspense } from "react";
-import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "@/components/page-header/PageHeader";
@@ -7,12 +7,30 @@ import CartItemSkeleton from "@/features/cart/components/CartItemSkeleton";
 import Animate from "@/components/animate/Animate";
 import { useCart } from "@/features/cart/hooks/useCart";
 import CartItem from "@/features/cart/components/CartItem";
+import ModernLoadingSpinner from "@/components/loading/ModernLoadingSpinner";
+import { useAuthContext } from "@/context/auth/useAuthContext";
 
 const CartPage: React.FC = () => {
-  const { cart, cartTotal, cartSubtotal, cartContentsCount, isLoading, error } =
-    useCart();
-  const { isLoggedIn } = useAuth();
+  const {
+    cart,
+    cartTotal,
+    cartSubtotal,
+    cartContentsCount,
+    isLoading: isCartLoading,
+    error,
+  } = useCart();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuthContext();
   const navigate = useNavigate();
+
+  if (isAuthLoading) {
+    return (
+      <div className="flex-grow flex flex-col bg-gray-100">
+        <div className="container mx-auto py-8 flex justify-center items-center">
+          <ModernLoadingSpinner />
+        </div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
@@ -77,7 +95,7 @@ const CartPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow p-8 text-center text-red-500">
                   {error}
                 </div>
-              ) : isLoading ? (
+              ) : isCartLoading ? (
                 Array.from({ length: 3 }).map((_, index) => (
                   <CartItemSkeleton key={index} />
                 ))
@@ -117,7 +135,7 @@ const CartPage: React.FC = () => {
                     </span>
                   </div>
                   <Button
-                    onClick={() => navigate("/checkout")}
+                    onClick={() => navigate("#")}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-3 text-lg font-semibold transition-all duration-300"
                   >
                     ادامه جهت تسویه حساب

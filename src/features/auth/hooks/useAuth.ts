@@ -13,8 +13,8 @@ export const useAuth = () => {
     queryFn: async () => {
       try {
         const response = await authApi.getCurrentUser(api);
-        console.log("Auth response =>" , response);
-        
+        console.log("Auth response =>", response);
+
         if (response.data.success) {
           return response.data.user;
         }
@@ -32,5 +32,5 @@ export const useAuth = () => {
     [userData]
   );
 
-  return { userData, isLoggedIn, isLoading };
+  return { userData: userData || null, isLoggedIn, isLoading };
 };

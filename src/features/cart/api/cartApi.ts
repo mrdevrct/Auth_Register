@@ -22,15 +22,15 @@ export const cartApi = {
     cartItemKey: string,
     quantity: number
   ) => {
-    return api.put<CartAddResponse>("/wp-json/custom/v1/cart/update", {
+    return api.post<CartAddResponse>("/wp-json/custom/v1/cart/update", {
       cart_item_key: cartItemKey,
       quantity,
     });
   },
 
   removeCartItem: async (api: AxiosInstance, cartItemKey: string) => {
-    return api.delete<CartAddResponse>("/wp-json/custom/v1/cart/remove", {
-      data: { cart_item_key: cartItemKey },
+    return api.post<CartAddResponse>("/wp-json/custom/v1/cart/remove", {
+      cart_item_key: cartItemKey,
     });
   },
 };
