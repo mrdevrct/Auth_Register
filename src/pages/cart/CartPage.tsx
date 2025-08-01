@@ -8,7 +8,7 @@ import Animate from "@/components/animate/Animate";
 import { useCart } from "@/features/cart/hooks/useCart";
 import CartItem from "@/features/cart/components/CartItem";
 import ModernLoadingSpinner from "@/components/loading/ModernLoadingSpinner";
-import { useAuthContext } from "@/context/auth/useAuthContext";
+import { useAuthContext } from "@/context/useAuthContext";
 
 const CartPage: React.FC = () => {
   const {

@@ -15,7 +15,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { userData, isLoggedIn, isLoading } = useAuth();
   console.log("Auth Context");
-  
 
   return (
     <AuthContext.Provider value={{ userData, isLoggedIn, isLoading }}>
