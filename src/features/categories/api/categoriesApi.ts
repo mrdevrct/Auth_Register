@@ -1,9 +1,8 @@
 import type { AxiosInstance } from "axios";
-import type { CategoriesResponse } from "../types";
-import type { Filters } from "@/features/products/types";
+import type { CategoriesResponse, CategoriesFilters } from "../types";
 
 export const categoriesApi = {
-  getCategories: (api: AxiosInstance, filters: Filters) =>
+  getCategories: (api: AxiosInstance, filters: CategoriesFilters) =>
     api.get<CategoriesResponse>("/wp-json/custom/v1/product-categories", {
       params: {
         page: filters.page,

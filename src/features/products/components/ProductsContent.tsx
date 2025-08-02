@@ -20,6 +20,7 @@ interface ProductsContentProps {
   applyPriceFilters: ReturnType<typeof useFilters>["applyPriceFilters"];
   handleFilterChange: ReturnType<typeof useFilters>["handleFilterChange"];
   handlePageChange: ReturnType<typeof useFilters>["handlePageChange"];
+  resetFilters: ReturnType<typeof useFilters>["resetFilters"];
 }
 
 const ProductsContent: React.FC<ProductsContentProps> = ({
@@ -29,6 +30,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({
   applyPriceFilters,
   handleFilterChange,
   handlePageChange,
+  resetFilters,
 }) => {
   const {
     products,
@@ -53,6 +55,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({
           handlePriceChange={handlePriceChange}
           applyPriceFilters={applyPriceFilters}
           handleFilterChange={handleFilterChange}
+          resetFilters={resetFilters}
           categories={categories}
           categoriesLoading={categoriesLoading}
           categoriesError={categoriesError}
@@ -61,7 +64,7 @@ const ProductsContent: React.FC<ProductsContentProps> = ({
           <SortControls
             filters={filters}
             totalProducts={products?.pagination?.total_products || 0}
-            // onSortChange={(sort) => handleFilterChange({ sort })}
+            onSortChange={(sort) => handleFilterChange({ sort })}
           />
           {productError ? (
             <div className="bg-white rounded-lg shadow p-8 text-center text-red-500">
@@ -99,7 +102,8 @@ const ProductsContent: React.FC<ProductsContentProps> = ({
           )}
           {products &&
             products.pagination &&
-            products.pagination.total_pages > 1 && (
+            products.pagination.total_pages > 1 &&
+            !filters.count && (
               <div className="mt-8">
                 <Pagination
                   currentPage={filters.page}

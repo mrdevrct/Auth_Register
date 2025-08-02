@@ -6,11 +6,9 @@ import { SortControlsSkeleton } from "@/features/products/components/SortControl
 import { ProductCardSkeleton } from "@/features/products/components/ProductCard";
 const defaultPageSize = Number(import.meta.env.VITE_DEFAULT_PAGE_SIZE) || 8;
 
-// Dynamic imports
 const ProductsContent = lazy(
   () => import("@/features/products/components/ProductsContent")
 );
-
 
 const ProductsPage: React.FC = () => {
   const {
@@ -20,6 +18,7 @@ const ProductsPage: React.FC = () => {
     applyPriceFilters,
     handleFilterChange,
     handlePageChange,
+    resetFilters,
   } = useFilters();
 
   return (
@@ -49,6 +48,7 @@ const ProductsPage: React.FC = () => {
           applyPriceFilters={applyPriceFilters}
           handleFilterChange={handleFilterChange}
           handlePageChange={handlePageChange}
+          resetFilters={resetFilters}
         />
       </Suspense>
     </div>

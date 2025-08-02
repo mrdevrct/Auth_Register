@@ -11,6 +11,7 @@ interface FiltersSidebarProps {
   handlePriceChange: (type: "min" | "max", value: number) => void;
   applyPriceFilters: () => void;
   handleFilterChange: (newFilters: Partial<Filters>) => void;
+  resetFilters: () => void; // اضافه کردن prop برای resetFilters
   categories: Category[];
   categoriesLoading: boolean;
   categoriesError?: string;
@@ -22,6 +23,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   handlePriceChange,
   applyPriceFilters,
   handleFilterChange,
+  resetFilters,
   categories,
   categoriesLoading,
   categoriesError,
@@ -49,7 +51,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
           <h2 className="text-xl font-bold">فیلتر کردن</h2>
           <Button
             variant="ghost"
-            className="p-2 h-6 w-6 lg:h-8 lg:w-8 lg:hidden" // مخفی کردن دکمه در lg و بالاتر
+            className="p-2 h-6 w-6 lg:h-8 lg:w-8 lg:hidden"
             onClick={toggleFilters}
             aria-label={isOpen ? "بستن فیلترها" : "باز کردن فیلترها"}
           >
@@ -120,6 +122,31 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
               <div className="border-t border-gray-200 my-4"></div>
 
+              <div className="mb-6">
+                <h3 className="font-medium mb-4">تعداد محصولات</h3>
+                <div className="flex flex-col">
+                  <label className="text-sm text-gray-600 mb-1">
+                    تعداد محصولات (بدون صفحه‌بندی)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={filters.count || ""}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        ? Number(e.target.value)
+                        : undefined;
+                      handleFilterChange({ count: value });
+                    }}
+                    className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="تعداد (مثال: 5)"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 my-4"></div>
+
               <div className="bg-white rounded-lg p-2">
                 <h3 className="font-medium mb-2">دسته‌بندی محصولات</h3>
                 {categoriesError ? (
@@ -149,6 +176,15 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
                   </div>
                 )}
               </div>
+
+              <div className="border-t border-gray-200 my-4"></div>
+
+              <Button
+                onClick={resetFilters}
+                className="w-full bg-red-500 hover:bg-red-600 text-white"
+              >
+                حذف تمام فیلترها
+              </Button>
             </div>
           </Animate>
         )}
@@ -190,10 +226,17 @@ const FiltersSidebarSkeleton: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-gray-200 my-4"></div>
+          <div className="mb-6">
+            <div className="h-5 bg-gray-200 rounded mb-4"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </div>
+          <div className="border-t border-gray-200 my-4"></div>
           <div className="bg-white rounded-lg p-2">
             <div className="h-5 bg-gray-200 rounded mb-2"></div>
             <div className="h-10 bg-gray-200 rounded"></div>
           </div>
+          <div className="border-t border-gray-200 my-4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
         </div>
       )}
     </div>

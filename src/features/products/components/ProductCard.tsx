@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FaShoppingCart } from "react-icons/fa";
+import { useCart } from "@/features/cart/hooks/useCart";
 import type { Product } from "../types";
+import ImagePlaceholderIcon from "@/components/image/ImagePlaceholderIcon";
 
 interface ProductCardProps {
   product: Product;
@@ -9,9 +12,14 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, isPriority }) => {
   const [quantity, setQuantity] = useState(1);
+  const { addToCart, isAdding, addError } = useCart();
 
   const increaseQuantity = () => setQuantity((prev) => Math.max(1, prev + 1));
   const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+
+  const handleAddToCart = async () => {
+    await addToCart(product.id, quantity);
+  };
 
   return (
     <div className="w-full lg:h-[400px] p-[15px] shadow-md bg-white rounded-lg flex flex-col gap-1">
@@ -28,20 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isPriority }) => {
           />
         ) : (
           <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
-            <svg
-              className="w-12 h-12 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h18v18H3V3zm6 6h6m-3-3v6"
-              />
-            </svg>
+            <ImagePlaceholderIcon className="w-12 h-12 text-gray-400" />
           </div>
         )}
       </a>
@@ -53,11 +48,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isPriority }) => {
       <span className="text-blue-600 text-md font-bold text-center my-2">
         {parseInt(String(product.price)).toLocaleString("fa-IR")} تومان
       </span>
+      {addError && (
+        <div className="text-red-500 text-sm text-center mb-2">{addError}</div>
+      )}
       <div className="flex items-center justify-center gap-2 my-2">
         <div className="flex items-center rounded-md bg-white overflow-hidden border border-gray-200">
           <button
             onClick={decreaseQuantity}
             className="px-3 py-1 text-lg hover:bg-gray-100 border-l border-gray-200 bg-white"
+            disabled={isAdding}
           >
             -
           </button>
@@ -67,16 +66,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isPriority }) => {
           <button
             onClick={increaseQuantity}
             className="px-3 py-1 text-lg hover:bg-gray-100 border-r border-gray-200 bg-white"
+            disabled={isAdding}
           >
             +
           </button>
         </div>
       </div>
       <Button
-        asChild
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 justify-center"
+        onClick={handleAddToCart}
+        disabled={isAdding}
       >
-        <a href={`/products/${product.id}`}>افزودن به سبد خرید</a>
+        <FaShoppingCart className="h-5 w-5" />
+        {isAdding ? "در حال افزودن..." : "افزودن به سبد خرید"}
       </Button>
     </div>
   );

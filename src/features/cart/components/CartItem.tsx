@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import type { CartItemType } from "../types";
 import { useCart } from "../hooks/useCart";
 import Animate from "@/components/animate/Animate";
+import ImagePlaceholderIcon from "@/components/image/ImagePlaceholderIcon";
 
 interface CartItemProps {
   item: CartItemType;
@@ -39,20 +40,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, index }) => {
           />
         ) : (
           <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
-            <svg
-              className="w-12 h-12 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h18v18H3V3zm6 6h6m-3-3v6"
-              />
-            </svg>
+            <ImagePlaceholderIcon className="w-12 h-12 text-gray-400" />
           </div>
         )}
       </a>

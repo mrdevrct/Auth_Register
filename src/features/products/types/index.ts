@@ -7,6 +7,12 @@ export interface Product {
   stock: number;
 }
 
+export type CategoriesFilters = {
+  page?: number;
+  per_page?: number;
+};
+
+
 export interface Pagination {
   total_products: number;
   total_pages: number;
@@ -17,17 +23,25 @@ export interface ProductsResponse {
   pagination: Pagination;
 }
 
-export interface Filters {
-  page: number;
-  category?: string;
-  sort?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  per_page?: number; 
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
 }
 
-export interface OTPResponse {
-  success: boolean;
-  message?: string;
-  token?: string;
+export interface CategoriesResponse {
+  categories: Category[];
+  total: number;
 }
+
+export interface Filters {
+  page: number;
+  category: string;
+  sort: "latest" | "bestselling" | "popular" | "";
+  minPrice: number;
+  maxPrice: number;
+  per_page: number;
+  count?: number;
+}
+
+

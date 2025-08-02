@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { FaEye, FaCheck, FaRegHeart, FaShoppingCart } from "react-icons/fa";
 import { useProductQuantity } from "../hooks/useProductQuantity";
-import { useAddToCart } from "@/features/cart/hooks/useAddToCart";
-import Swal from "sweetalert2";
+import { useCart } from "@/features/cart/hooks/useCart";
 
 interface ProductInfoSectionProps {
   product: {
@@ -16,25 +15,10 @@ interface ProductInfoSectionProps {
 
 export function ProductInfoSection({ product }: ProductInfoSectionProps) {
   const { quantity, increaseQuantity, decreaseQuantity } = useProductQuantity();
-  const { addToCart, isAdding, error } = useAddToCart();
+  const { addToCart, isAdding, addError } = useCart();
 
   const handleAddToCart = async () => {
-    const result = await addToCart(product.id, quantity);
-    if (result.success) {
-      Swal.fire({
-        title: "موفق!",
-        text: "محصول با موفقیت به سبد خرید اضافه شد.",
-        icon: "success",
-        confirmButtonText: "باشه",
-        customClass: {
-          title: "text-lg font-bold text-gray-800",
-          popup: "font-sans text-sm",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
-        },
-        buttonsStyling: false,
-      });
-    }
+    await addToCart(product.id, quantity);
   };
 
   return (
@@ -66,7 +50,7 @@ export function ProductInfoSection({ product }: ProductInfoSectionProps) {
           {parseInt(product.price).toLocaleString("fa-IR")} تومان
         </span>
       </div>
-      {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+      {addError && <div className="text-red-500 text-sm mb-4">{addError}</div>}
       <div className="flex flex-wrap justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
           <div className="flex items-center rounded-md bg-white overflow-hidden">

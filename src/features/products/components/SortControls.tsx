@@ -5,13 +5,13 @@ import Animate from "@/components/animate/Animate";
 interface SortControlsProps {
   filters: Filters;
   totalProducts: number;
-  // onSortChange: (sort: string) => void;
+  onSortChange: (sort: Filters["sort"]) => void;
 }
 
 const SortControls: React.FC<SortControlsProps> = ({
   filters,
   totalProducts,
-  // onSortChange,
+  onSortChange,
 }) => {
   return (
     <Animate animation="fadeIn" duration={0.5} className="mb-6">
@@ -24,19 +24,22 @@ const SortControls: React.FC<SortControlsProps> = ({
           )}{" "}
           از {totalProducts || 0} محصول
         </div>
-        {/* Sort */}
-        {/* <div>
+        <div>
+          <label htmlFor="sort" className="mr-2 text-gray-600">
+            مرتب‌سازی:
+          </label>
           <select
+            id="sort"
             value={filters.sort || ""}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={(e) => onSortChange(e.target.value as Filters["sort"])}
             className="border border-gray-300 text-gray-600 p-2 rounded"
           >
-            <option value="newest">جدیدترین</option>
-            <option value="cheapest">ارزان‌ترین</option>
-            <option value="most_expensive">گران‌ترین</option>
-            <option value="popular">محبوب‌ترین</option>
+            <option value="">پیش‌فرض</option>
+            <option value="latest">آخرین محصولات</option>
+            <option value="bestselling">پرفروش‌ترین‌ها</option>
+            <option value="popular">محبوب‌ترین‌ها</option>
           </select>
-        </div> */}
+        </div>
       </div>
     </Animate>
   );

@@ -13,3 +13,8 @@ export interface CategoriesResponse {
   categories: Category[];
   total: number;
 }
+
+export type CategoriesFilters = {
+  page?: number;
+  per_page?: number;
+};

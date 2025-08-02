@@ -1,18 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { useApiClient } from "@/libs/axios/axiosConfig";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import Swal from "sweetalert2";
 import { cartApi } from "../api/cartApi";
 import type { CartAddResponse, CartItemType } from "../types";
 import type { AxiosResponse } from "axios";
+import useSweetAlert from "@/libs/sweet-alert/sweetAlertHelper";
 
 export const useCart = () => {
   const api = useApiClient();
   const { isLoggedIn } = useAuth();
-  const navigate = useNavigate();
+  const { showAlert } = useSweetAlert();
   const queryClient = useQueryClient();
 
+  // Query for fetching cart data
   const { data, isLoading, error } = useQuery<
     AxiosResponse<CartAddResponse>,
     Error,
@@ -39,32 +39,52 @@ export const useCart = () => {
     enabled: isLoggedIn,
   });
 
-  // Handle error state
+  // Handle login error for cart fetch
   if (error?.message === "نیاز به لاگین") {
-    Swal.fire({
+    showAlert({
       title: "باید لاگین کنید",
-      html: `<p class="text-gray-600 mb-6">برای مشاهده سبد خرید، باید وارد حساب کاربری خود شوید.</p>`,
+      description: "برای مشاهده سبد خرید، باید وارد حساب کاربری خود شوید.",
       icon: "warning",
-      showCancelButton: true,
-      cancelButtonText: "بستن",
-      confirmButtonText: "ورود",
-      customClass: {
-        container: "font-sans",
-        title: "text-xl font-semibold text-gray-800 mb-4",
-        actions: "flex justify-end gap-4",
-        confirmButton:
-          "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
-        cancelButton:
-          "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+      confirmButton: {
+        text: "ورود",
+        className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+        link: "/auth/login",
       },
-      buttonsStyling: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/auth/login");
-      }
+      cancelButton: {
+        text: "بستن",
+        className: "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+      },
     });
   }
 
+  // Mutation for adding to cart
+  const addMutation = useMutation({
+    mutationFn: ({
+      productId,
+      quantity,
+    }: {
+      productId: number;
+      quantity: number;
+    }) => cartApi.addToCart(api, productId, quantity),
+    onSuccess: (data) => {
+      if (data.data.success) {
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+      }
+    },
+    onError: () => {
+      showAlert({
+        title: "خطا",
+        description: "خطا در ارتباط با سرور",
+        icon: "error",
+        confirmButton: {
+          text: "باشه",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+        },
+      });
+    },
+  });
+
+  // Mutation for updating cart item
   const updateMutation = useMutation({
     mutationFn: ({
       cartItemKey,
@@ -76,54 +96,41 @@ export const useCart = () => {
     onSuccess: (data) => {
       if (data.data.success) {
         queryClient.setQueryData(["cart"], data);
-        Swal.fire({
+        showAlert({
           title: "به‌روزرسانی موفق",
-          html: `<p class="text-gray-600 mb-6">تعداد محصول در سبد خرید به‌روزرسانی شد.</p>`,
+          description: "تعداد محصول در سبد خرید به‌روزرسانی شد.",
           icon: "success",
-          confirmButtonText: "باشه",
-          customClass: {
-            container: "font-sans",
-            title: "text-xl font-semibold text-gray-800 mb-4",
-            confirmButton:
-              "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+          confirmButton: {
+            text: "باشه",
+            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
           },
-          buttonsStyling: false,
         });
       } else {
-        Swal.fire({
+        showAlert({
           title: "خطا",
-          html: `<p class="text-gray-600 mb-6">${
-            data.data.message || "خطا در به‌روزرسانی سبد خرید"
-          }</p>`,
+          description: data.data.message || "خطا در به‌روزرسانی سبد خرید",
           icon: "error",
-          confirmButtonText: "باشه",
-          customClass: {
-            container: "font-sans",
-            title: "text-xl font-semibold text-gray-800 mb-4",
-            confirmButton:
-              "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+          confirmButton: {
+            text: "باشه",
+            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
           },
-          buttonsStyling: false,
         });
       }
     },
     onError: () => {
-      Swal.fire({
+      showAlert({
         title: "خطا",
-        html: `<p class="text-gray-600 mb-6">خطا در ارتباط با سرور</p>`,
+        description: "خطا در ارتباط با سرور",
         icon: "error",
-        confirmButtonText: "باشه",
-        customClass: {
-          container: "font-sans",
-          title: "text-xl font-semibold text-gray-800 mb-4",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+        confirmButton: {
+          text: "باشه",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
         },
-        buttonsStyling: false,
       });
     },
   });
 
+  // Mutation for removing cart item
   const removeMutation = useMutation({
     mutationFn: (cartItemKey: string) =>
       cartApi.removeCartItem(api, cartItemKey),
@@ -133,45 +140,90 @@ export const useCart = () => {
       }
     },
     onError: () => {
-      Swal.fire({
+      showAlert({
         title: "خطا",
-        html: `<p class="text-gray-600 mb-6">خطا در ارتباط با سرور</p>`,
+        description: "خطا در ارتباط با سرور",
         icon: "error",
-        confirmButtonText: "باشه",
-        customClass: {
-          container: "font-sans",
-          title: "text-xl font-semibold text-gray-800 mb-4",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+        confirmButton: {
+          text: "باشه",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
         },
-        buttonsStyling: false,
       });
     },
   });
 
+  // Add to cart function
+  const addToCart = async (productId: number, quantity: number) => {
+    if (!isLoggedIn) {
+      await showAlert({
+        title: "باید لاگین کنید",
+        description: "برای افزودن محصول به سبد خرید، باید وارد حساب کاربری خود شوید.",
+        icon: "warning",
+        confirmButton: {
+          text: "ورود",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+          link: "/auth/login",
+        },
+        cancelButton: {
+          text: "بستن",
+          className: "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+        },
+      });
+      return { success: false, message: "نیاز به لاگین" };
+    }
+
+    try {
+      const response = await addMutation.mutateAsync({ productId, quantity });
+      if (response.data.success) {
+        await showAlert({
+          title: "موفق!",
+          description: "محصول با موفقیت به سبد خرید اضافه شد.",
+          icon: "success",
+          confirmButton: {
+            text: "رفتن به سبد خرید",
+            className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+            link: "/cart",
+          },
+          cancelButton: {
+            text: "بستن",
+            className: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md",
+          },
+        });
+        return {
+          success: true,
+          message: response.data.message || "محصول به سبد خرید اضافه شد",
+          cartItems: response.data.cart_items,
+          cartTotal: response.data.cart_total,
+          cartSubtotal: response.data.cart_subtotal,
+          cartContentsCount: response.data.cart_contents_count,
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "خطا در افزودن به سبد خرید",
+        };
+      }
+    } catch {
+      return { success: false, message: "خطا در ارتباط با سرور" };
+    }
+  };
+
+  // Update cart item function
   const updateCartItem = async (cartItemKey: string, quantity: number) => {
     if (!isLoggedIn) {
-      await Swal.fire({
+      await showAlert({
         title: "باید لاگین کنید",
-        html: `<p class="text-gray-600 mb-6">برای به‌روزرسانی سبد خرید، باید وارد حساب کاربری خود شوید.</p>`,
+        description: "برای به‌روزرسانی سبد خرید، باید وارد حساب کاربری خود شوید.",
         icon: "warning",
-        showCancelButton: true,
-        cancelButtonText: "بستن",
-        confirmButtonText: "ورود",
-        customClass: {
-          container: "font-sans",
-          title: "text-xl font-semibold text-gray-800 mb-4",
-          actions: "flex justify-end gap-4",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
-          cancelButton:
-            "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+        confirmButton: {
+          text: "ورود",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+          link: "/auth/login",
         },
-        buttonsStyling: false,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/auth/login");
-        }
+        cancelButton: {
+          text: "بستن",
+          className: "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+        },
       });
       return;
     }
@@ -180,66 +232,50 @@ export const useCart = () => {
     }
   };
 
+  // Remove cart item function
   const removeCartItem = async (cartItemKey: string, productName: string) => {
     if (!isLoggedIn) {
-      await Swal.fire({
+      await showAlert({
         title: "باید لاگین کنید",
-        html: `<p class="text-gray-600 mb-6">برای حذف آیتم از سبد خرید، باید وارد حساب کاربری خود شوید.</p>`,
+        description: "برای حذف آیتم از سبد خرید، باید وارد حساب کاربری خود شوید.",
         icon: "warning",
-        showCancelButton: true,
-        cancelButtonText: "بستن",
-        confirmButtonText: "ورود",
-        customClass: {
-          container: "font-sans",
-          title: "text-xl font-semibold text-gray-800 mb-4",
-          actions: "flex justify-end gap-4",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
-          cancelButton:
-            "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+        confirmButton: {
+          text: "ورود",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+          link: "/auth/login",
         },
-        buttonsStyling: false,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/auth/login");
-        }
+        cancelButton: {
+          text: "بستن",
+          className: "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+        },
       });
       return;
     }
 
-    const result = await Swal.fire({
+    const result = await showAlert({
       title: "حذف محصول",
-      html: `<p class="text-gray-600 mb-6">آیا مطمئن هستید که می‌خواهید "${productName}" را از سبد خرید حذف کنید؟</p>`,
+      description: `آیا مطمئن هستید که می‌خواهید "${productName}" را از سبد خرید حذف کنید؟`,
       icon: "warning",
-      showCancelButton: true,
-      cancelButtonText: "لغو",
-      confirmButtonText: "حذف",
-      customClass: {
-        container: "font-sans",
-        title: "text-xl font-semibold text-gray-800 mb-4",
-        actions: "flex justify-end gap-4",
-        confirmButton:
-          "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md",
-        cancelButton:
-          "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+      confirmButton: {
+        text: "حذف",
+        className: "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md",
       },
-      buttonsStyling: false,
+      cancelButton: {
+        text: "لغو",
+        className: "border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md",
+      },
     });
 
     if (result.isConfirmed) {
       await removeMutation.mutateAsync(cartItemKey);
-      await Swal.fire({
+      await showAlert({
         title: "حذف موفق",
-        html: `<p class="text-gray-600 mb-6">"${productName}" از سبد خرید حذف شد.</p>`,
+        description: `"${productName}" از سبد خرید حذف شد.`,
         icon: "success",
-        confirmButtonText: "باشه",
-        customClass: {
-          container: "font-sans",
-          title: "text-xl font-semibold text-gray-800 mb-4",
-          confirmButton:
-            "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
+        confirmButton: {
+          text: "باشه",
+          className: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md",
         },
-        buttonsStyling: false,
       });
     }
   };
@@ -251,7 +287,10 @@ export const useCart = () => {
     cartContentsCount: data?.cartContentsCount ?? 0,
     isLoading,
     error: error?.message ?? null,
+    addToCart,
     updateCartItem,
     removeCartItem,
+    isAdding: addMutation.isPending,
+    addError: addMutation.error?.message || null,
   };
 };
